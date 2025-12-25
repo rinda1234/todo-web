@@ -1,4 +1,5 @@
-export default function DayPanel({ date, events }) {
+export default function DayPanel({ date, events, onAdd }) {
+
     return (
         <div className="bg-white rounded-2xl shadow p-4 h-full">
             <h3 className="font-semibold mb-3">
@@ -27,9 +28,13 @@ export default function DayPanel({ date, events }) {
                 </ul>
             )}
 
-            <button className="mt-4 w-full py-2 rounded-xl bg-blue-500 text-white hover:bg-blue-600">
+            <button
+                onClick={onAdd}
+                className="mt-4 w-full py-2 rounded-xl bg-blue-500 text-white hover:bg-blue-600"
+            >
                 + 일정 추가
             </button>
+
         </div>
     );
 }

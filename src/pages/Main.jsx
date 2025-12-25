@@ -4,22 +4,26 @@ import TodayCard from "../components/TodayCard";
 import CalendarMonth from "../components/CalendarMonth";
 import DayPanel from "../components/DayPanel";
 import { formatDate } from "../utils/calendar";
+import EventModal from "../components/EventModal";
+const INITIAL_EVENTS = {
+    "2025-12-25": [
+        { title: "자료구조 과제", startTime: "14:00" },
+        { title: "팀 회의", startTime: "18:00" },
+    ],
+    "2025-12-26": [
+        { title: "Term Project 마감", startTime: "23:59" },
+    ],
+};
 export default function Main() {
-    const dummyEvents = {
-        "2025-12-25": [
-            { title: "자료구조 과제", startTime: "14:00" },
-            { title: "팀 회의", startTime: "18:00" },
-        ],
-        "2025-12-26": [
-            { title: "Term Project 마감", startTime: "23:59" },
-        ],
-    };
     const now = new Date();
     const [year, setYear] = useState(now.getFullYear());
     const [month, setMonth] = useState(now.getMonth());
     const [selectedDate, setSelectedDate] = useState(now);
+    const [events, setEvents] = useState(INITIAL_EVENTS);
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const selectedKey = formatDate(selectedDate);
-    const selectedEvents = dummyEvents[selectedKey] || [];
+    const selectedEvents = events[selectedKey] || [];
+
 
 
     const prevMonth = () => {
@@ -39,6 +43,17 @@ export default function Main() {
             setMonth(month + 1);
         }
     };
+
+    const addEvent = ({ title, startTime }) => {
+        setEvents((prev) => {
+            const dayEvents = prev[selectedKey] || [];
+            return {
+                ...prev,
+                [selectedKey]: [...dayEvents, { title, startTime }],
+            };
+        });
+    };
+
 
     return (
         <div className="min-h-screen bg-gray-100 p-6">
@@ -64,9 +79,20 @@ export default function Main() {
                 <DayPanel
                     date={selectedDate}
                     events={selectedEvents}
+                    onAdd={() => setIsModalOpen(true)}
                 />
 
+
             </div>
+            {isModalOpen && (
+                <EventModal
+                    date={selectedDate}
+                    onClose={() => setIsModalOpen(false)}
+                    onSave={addEvent}
+                />
+            )}
+
         </div>
     );
 }
+

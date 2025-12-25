@@ -54,6 +54,19 @@ export default function Main() {
         });
     };
 
+    const deleteEvent = (index) => {
+        setEvents((prev) => {
+            const dayEvents = prev[selectedKey] || [];
+            const newEvents = dayEvents.filter((_, i) => i !== index);
+
+            return {
+                ...prev,
+                [selectedKey]: newEvents,
+            };
+        });
+    };
+
+
 
     return (
         <div className="min-h-screen bg-gray-100 p-6">
@@ -80,7 +93,9 @@ export default function Main() {
                     date={selectedDate}
                     events={selectedEvents}
                     onAdd={() => setIsModalOpen(true)}
+                    onDelete={deleteEvent}
                 />
+
 
 
             </div>

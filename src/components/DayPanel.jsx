@@ -1,4 +1,5 @@
-export default function DayPanel({ date, events, onAdd }) {
+export default function DayPanel({ date, events, onAdd, onDelete }) {
+
 
     return (
         <div className="bg-white rounded-2xl shadow p-4 h-full">
@@ -15,15 +16,25 @@ export default function DayPanel({ date, events, onAdd }) {
                     {events.map((event, idx) => (
                         <li
                             key={idx}
-                            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-50"
+                            className="flex items-center justify-between px-3 py-2 rounded-lg bg-gray-50"
                         >
-              <span className="text-sm font-medium text-blue-600">
-                {event.startTime}
-              </span>
-                            <span className="text-sm text-gray-800">
-                {event.title}
-              </span>
+                            <div className="flex items-center gap-2">
+                                <span className="text-sm font-medium text-blue-600">
+                                    {event.startTime}
+                                </span>
+                                <span className="text-sm text-gray-800">
+                                    {event.title}
+                                </span>
+                            </div>
+
+                            <button
+                                onClick={() => onDelete(idx)}
+                                className="text-gray-400 hover:text-red-500"
+                            >
+                                ✕
+                            </button>
                         </li>
+
                     ))}
                 </ul>
             )}

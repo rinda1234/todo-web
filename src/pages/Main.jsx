@@ -32,10 +32,14 @@ export default function Main() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [user, setUser] = useState(null);
     const [monthEvents, setMonthEvents] = useState({});
-
+    const todayKey = formatDate(new Date());
+    const [todayEvents, setTodayEvents] = useState([]);
 
     const selectedKey = formatDate(selectedDate);
     const selectedEvents = events[selectedKey] || [];
+
+
+
 
     /* =========================
        Auth 상태 감지
@@ -157,6 +161,37 @@ export default function Main() {
         await loadEvents();
     };
 
+    // 오늘 일정 불러오기
+    const loadTodayEvents = useCallback(async () => {
+        if (!user) return;
+
+        const q = query(
+            collection(db, "events"),
+            where("userId", "==", user.uid),
+            where("date", "==", todayKey)
+        );
+
+        const snapshot = await getDocs(q);
+        const list = [];
+
+        snapshot.forEach((docSnap) => {
+            const data = docSnap.data();
+            list.push({
+                id: docSnap.id,
+                title: data.title,
+                startTime: data.startTime,
+            });
+        });
+
+        setTodayEvents(list);
+    }, [user, todayKey]);
+
+    useEffect(() => {
+        loadTodayEvents();
+    }, [loadTodayEvents]);
+
+
+
     /* =========================
        로그인 UI
     ========================= */
@@ -199,7 +234,8 @@ export default function Main() {
                     onNext={nextMonth}
                 />
 
-                <TodayCard />
+                <TodayCard events={todayEvents} />
+
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="md:col-span-2">

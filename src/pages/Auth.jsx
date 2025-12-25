@@ -1,76 +1,165 @@
 import { useState } from "react";
+import "./Auth.css";
 import {
+    signInWithEmail,
+    signUpWithEmail,
     signInWithGoogle,
     signInWithGithub,
 } from "../auth";
 
 export default function Auth() {
-    const [mode, setMode] = useState("login"); // login | signup
+    const [isSignUp, setIsSignUp] = useState(false);
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
+
+    const handleSignIn = async () => {
+        setError("");
+        try {
+            await signInWithEmail(email, password);
+        } catch {
+            setError("이메일 또는 비밀번호가 올바르지 않습니다");
+        }
+    };
+
+    const handleSignUp = async () => {
+        setError("");
+        try {
+            await signUpWithEmail(email, password);
+        } catch (e) {
+            console.error(e);
+            setError(e.message);
+        }
+
+    };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
-            <div className="bg-white w-[380px] max-w-[90%] rounded-2xl shadow-xl p-8">
+        <div className="auth-wrapper">
+            <div className={`auth-container ${isSignUp ? "right-panel-active" : ""}`}>
 
-                {/* 타이틀 */}
-                <h1 className="text-2xl font-bold text-center mb-1">
-                    My Planner
-                </h1>
-                <p className="text-sm text-gray-500 text-center mb-6">
-                    {mode === "login"
-                        ? "로그인하여 일정을 관리하세요"
-                        : "회원가입 후 바로 시작할 수 있어요"}
-                </p>
+                {/* 로그인 */}
+                <div className="form-container sign-in-container">
+                    <form>
+                        <h1>Sign In</h1>
 
-                {/* 버튼 영역 */}
-                <div className="space-y-3">
-                    <button
-                        onClick={signInWithGoogle}
-                        className="w-full flex items-center justify-center gap-3 py-3 rounded-xl border hover:bg-gray-50 transition"
-                    >
-                        <span className="font-medium">
-                            Google로 {mode === "login" ? "로그인" : "회원가입"}
-                        </span>
-                    </button>
+                        <div className="social-container">
+                            <button
+                                type="button"
+                                className="social"
+                                onClick={signInWithGoogle}
+                            >
+                                Google
+                            </button>
 
-                    <button
-                        onClick={signInWithGithub}
-                        className="w-full flex items-center justify-center gap-3 py-3 rounded-xl border hover:bg-gray-50 transition"
-                    >
-                        <span className="font-medium">
-                            GitHub로 {mode === "login" ? "로그인" : "회원가입"}
-                        </span>
-                    </button>
+                            <button
+                                type="button"
+                                className="social"
+                                onClick={signInWithGithub}
+                            >
+                                GitHub
+                            </button>
+                        </div>
+
+
+                        <span>or use your account</span>
+
+                        <input
+                            type="email"
+                            placeholder="Email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                        />
+                        <input
+                            type="password"
+                            placeholder="Password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                        />
+
+                        <button type="button" onClick={handleSignIn}>
+                            Sign In
+                        </button>
+
+                        {error && <p className="error">{error}</p>}
+                    </form>
                 </div>
 
-                {/* 모드 전환 */}
-                <p className="mt-6 text-sm text-center text-gray-500">
-                    {mode === "login" ? (
-                        <>
-                            계정이 없으신가요?{" "}
-                            <button
-                                onClick={() => setMode("signup")}
-                                className="text-blue-500 hover:underline"
-                            >
-                                회원가입
-                            </button>
-                        </>
-                    ) : (
-                        <>
-                            이미 계정이 있나요?{" "}
-                            <button
-                                onClick={() => setMode("login")}
-                                className="text-blue-500 hover:underline"
-                            >
-                                로그인
-                            </button>
-                        </>
-                    )}
-                </p>
+                {/* 회원가입 */}
+                <div className="form-container sign-up-container">
+                    <form>
+                        <h1>Create Account</h1>
 
-                {/* 안내 */}
-                <p className="mt-4 text-xs text-gray-400 text-center">
-                    Google/GitHub 계정은 Firebase에서 안전하게 관리됩니다
-                </p>
+                        <div className="social-container">
+                            <button
+                                type="button"
+                                className="social"
+                                onClick={signInWithGoogle}
+                            >
+                                Google
+                            </button>
+
+                            <button
+                                type="button"
+                                className="social"
+                                onClick={signInWithGithub}
+                            >
+                                GitHub
+                            </button>
+                        </div>
+
+
+                        <span>or use your email</span>
+
+                        <input
+                            type="email"
+                            placeholder="Email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                        />
+                        <input
+                            type="password"
+                            placeholder="Password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                        />
+
+                        <button type="button" onClick={handleSignUp}>
+                            Sign Up
+                        </button>
+
+                        {error && <p className="error">{error}</p>}
+                    </form>
+                </div>
+
+                {/* 오버레이 */}
+                <div className="overlay-container">
+                    <div className="overlay">
+                        <div className="overlay-panel overlay-left">
+                            <h1>Welcome Back</h1>
+                            <p>Login with your personal info</p>
+                            <button
+                                type="button"
+                                className="ghost"
+                                onClick={() => setIsSignUp(false)}
+                            >
+                                Sign In
+                            </button>
+                        </div>
+
+                        <div className="overlay-panel overlay-right">
+                            <h1>Hello</h1>
+                            <p>Create an account to start planning</p>
+                            <button
+                                type="button"
+                                className="ghost"
+                                onClick={() => setIsSignUp(true)}
+                            >
+                                Sign Up
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     );

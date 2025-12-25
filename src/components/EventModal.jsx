@@ -53,7 +53,7 @@ export default function EventModal({ date, onClose, onSave }) {
                 <input
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    placeholder="예: 자료구조 과제"
+                    placeholder=""
                     style={{
                         width: "100%",
                         padding: 8,
@@ -70,7 +70,7 @@ export default function EventModal({ date, onClose, onSave }) {
                 <textarea
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    placeholder="- 트리 파트 정리\n- 예제 문제 풀기"
+                    placeholder=""
                     rows={3}
                     style={{
                         width: "100%",

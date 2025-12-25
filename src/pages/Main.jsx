@@ -6,10 +6,10 @@ import CalendarMonth from "../components/CalendarMonth";
 import DayPanel from "../components/DayPanel";
 import EventModal from "../components/EventModal";
 import { formatDate } from "../utils/calendar";
-
+import Auth from "../pages/Auth";
 import { auth } from "../firebase";
 import { onAuthStateChanged } from "firebase/auth";
-import { loginWithGoogle, loginWithGithub } from "../auth";
+
 
 import {
     collection,
@@ -202,30 +202,9 @@ export default function Main() {
        로그인 UI
     ========================= */
     if (!user) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-100">
-                <div className="bg-white p-8 rounded-2xl shadow w-80">
-                    <h2 className="text-xl font-semibold mb-6 text-center">
-                        로그인
-                    </h2>
-
-                    <button
-                        onClick={loginWithGoogle}
-                        className="w-full mb-3 py-2 rounded-lg border"
-                    >
-                        Google로 로그인
-                    </button>
-
-                    <button
-                        onClick={loginWithGithub}
-                        className="w-full py-2 rounded-lg border"
-                    >
-                        GitHub로 로그인
-                    </button>
-                </div>
-            </div>
-        );
+        return <Auth />;
     }
+
 
     return (
         <>

@@ -1,4 +1,3 @@
-// src/auth.js
 import {
     GoogleAuthProvider,
     GithubAuthProvider,
@@ -7,27 +6,13 @@ import {
 } from "firebase/auth";
 import { auth } from "./firebase";
 
-/* =========================
-   Providers
-========================= */
 const googleProvider = new GoogleAuthProvider();
 const githubProvider = new GithubAuthProvider();
 
-/* =========================
-   Login Functions
-========================= */
+export const signInWithGoogle = () =>
+    signInWithPopup(auth, googleProvider);
 
-// Google 로그인
-export const loginWithGoogle = () => {
-    return signInWithPopup(auth, googleProvider);
-};
+export const signInWithGithub = () =>
+    signInWithPopup(auth, githubProvider);
 
-// GitHub 로그인
-export const loginWithGithub = () => {
-    return signInWithPopup(auth, githubProvider);
-};
-
-// 로그아웃
-export const logout = () => {
-    return signOut(auth);
-};
+export const logout = () => signOut(auth);

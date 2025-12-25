@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./firebase";
 import Login from "./Login";
-import Todos from "./Todos";
 
 export default function App() {
     const [user, setUser] = useState(null);
@@ -16,6 +15,20 @@ export default function App() {
         return () => unsub();
     }, []);
 
-    if (loading) return <div style={{ padding: 20 }}>Loading...</div>;
-    return user ? <Todos user={user} /> : <Login />;
+    if (loading) {
+        return <div className="p-10">Loading...</div>;
+    }
+
+    if (!user) {
+        return <Login />;
+    }
+
+    return (
+        <div className="p-10">
+            <h2 className="text-xl font-semibold">
+                로그인 성공 🎉
+            </h2>
+            <p className="text-gray-600 mt-2">{user.email}</p>
+        </div>
+    );
 }

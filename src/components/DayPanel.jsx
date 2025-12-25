@@ -28,11 +28,12 @@ export default function DayPanel({ date, events, onAdd, onDelete }) {
                             </div>
 
                             <button
-                                onClick={() => onDelete(idx)}
+                                onClick={() => onDelete(event.id)}
                                 className="text-gray-400 hover:text-red-500"
                             >
                                 ✕
                             </button>
+
                         </li>
 
                     ))}

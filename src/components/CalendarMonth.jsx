@@ -20,43 +20,42 @@ export default function CalendarMonth({
                 ))}
             </div>
 
-            {/* 날짜 그리드 */}
-            <div className="grid grid-cols-7 gap-1">
+            {/* 날짜 카드 */}
+            <div className="grid grid-cols-7 gap-2">
                 {matrix.map((date, idx) => {
                     const isCurrentMonth = date.getMonth() === month;
                     const isToday = isSameDay(date, today);
                     const isSelected = isSameDay(date, selectedDate);
 
-                    // 🔥 여기서 날짜별 dot 계산
                     const key = formatDate(date);
-                    const count = monthEvents?.[key] || 0;
+                    const dayEvents = monthEvents?.[key] || [];
 
                     return (
                         <button
                             key={idx}
                             onClick={() => onSelect(date)}
                             className={`
-                aspect-square rounded-xl text-sm
-                ${isCurrentMonth ? "text-gray-900" : "text-gray-300"}
-                ${isToday ? "border border-blue-500" : ""}
-                ${isSelected ? "bg-blue-100" : "hover:bg-gray-100"}
+                relative aspect-square rounded-xl p-2 text-left
+                ${isSelected ? "bg-blue-100" : "bg-gray-50 hover:bg-gray-100"}
+                ${!isCurrentMonth ? "opacity-40" : ""}
+                ${isToday ? "ring-2 ring-blue-500" : ""}
               `}
                         >
-                            <div className="flex flex-col items-center justify-center h-full">
-                                {/* 날짜 숫자 */}
-                                <span>{date.getDate()}</span>
+                            {/* 날짜 (좌상단) */}
+                            <div className="absolute top-1 left-1 text-[10px] text-gray-500">
+                                {date.getMonth() + 1}/{date.getDate()}
+                            </div>
 
-                                {/* 🔵 일정 dot */}
-                                {count > 0 && (
-                                    <div className="flex gap-1 mt-1">
-                                        {Array.from({ length: Math.min(count, 3) }).map((_, i) => (
-                                            <span
-                                                key={i}
-                                                className="w-1.5 h-1.5 rounded-full bg-blue-500"
-                                            />
-                                        ))}
+                            {/* 일정 요약 (중앙) */}
+                            <div className="flex flex-col justify-center h-full gap-1 mt-2">
+                                {dayEvents.slice(0, 3).map((event) => (
+                                    <div
+                                        key={event.id}
+                                        className="text-[11px] text-gray-700 truncate"
+                                    >
+                                        {event.startTime} {event.title}
                                     </div>
-                                )}
+                                ))}
                             </div>
                         </button>
                     );

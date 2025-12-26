@@ -1,33 +1,29 @@
-// src/auth.js
 import {
     GoogleAuthProvider,
     GithubAuthProvider,
     signInWithPopup,
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
     signOut,
 } from "firebase/auth";
 import { auth } from "./firebase";
 
-/* =========================
-   Providers
-========================= */
+/* 소셜 로그인 */
 const googleProvider = new GoogleAuthProvider();
 const githubProvider = new GithubAuthProvider();
 
-/* =========================
-   Login Functions
-========================= */
+export const signInWithGoogle = () =>
+    signInWithPopup(auth, googleProvider);
 
-// Google 로그인
-export const loginWithGoogle = () => {
-    return signInWithPopup(auth, googleProvider);
-};
+export const signInWithGithub = () =>
+    signInWithPopup(auth, githubProvider);
 
-// GitHub 로그인
-export const loginWithGithub = () => {
-    return signInWithPopup(auth, githubProvider);
-};
+/* 이메일 / 비밀번호 */
+export const signInWithEmail = (email, password) =>
+    signInWithEmailAndPassword(auth, email, password);
 
-// 로그아웃
-export const logout = () => {
-    return signOut(auth);
-};
+export const signUpWithEmail = (email, password) =>
+    createUserWithEmailAndPassword(auth, email, password);
+
+/* 로그아웃 */
+export const logout = () => signOut(auth);

@@ -6,10 +6,10 @@ import CalendarMonth from "../components/CalendarMonth";
 import DayPanel from "../components/DayPanel";
 import EventModal from "../components/EventModal";
 import { formatDate } from "../utils/calendar";
-
+import Auth from "../pages/Auth";
 import { auth } from "../firebase";
 import { onAuthStateChanged } from "firebase/auth";
-import { loginWithGoogle, loginWithGithub } from "../auth";
+
 
 import {
     collection,
@@ -29,12 +29,14 @@ export default function Main() {
     const [month, setMonth] = useState(now.getMonth());
     const [selectedDate, setSelectedDate] = useState(now);
     const [events, setEvents] = useState({});
+    const [monthEvents, setMonthEvents] = useState({});
+    const [todayEvents, setTodayEvents] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [user, setUser] = useState(null);
-    const [monthEvents, setMonthEvents] = useState({});
-
 
     const selectedKey = formatDate(selectedDate);
+    const todayKey = formatDate(new Date());
+
     const selectedEvents = events[selectedKey] || [];
 
     /* =========================
@@ -48,10 +50,10 @@ export default function Main() {
     }, []);
 
     /* =========================
-       Firestore: 일정 불러오기
+       선택 날짜 일정
     ========================= */
     const loadEvents = useCallback(async () => {
-        if (!user) return; // 🔥 중요: 로그인 전에는 실행 X
+        if (!user) return;
 
         const q = query(
             collection(db, "events"),
@@ -68,17 +70,19 @@ export default function Main() {
             loaded[data.date].push({
                 id: docSnap.id,
                 title: data.title,
+                description: data.description || "",
                 startTime: data.startTime,
             });
         });
 
         setEvents(loaded);
     }, [user, selectedKey]);
+
+    /* =========================
+       월간 요약 일정
+    ========================= */
     const loadMonthEvents = useCallback(async () => {
         if (!user) return;
-
-        const start = new Date(year, month, 1);
-        const end = new Date(year, month + 1, 0);
 
         const q = query(
             collection(db, "events"),
@@ -86,29 +90,61 @@ export default function Main() {
         );
 
         const snapshot = await getDocs(q);
-        const counts = {};
+        const grouped = {};
 
         snapshot.forEach((docSnap) => {
             const data = docSnap.data();
-            if (!data.date) return;
+            if (!grouped[data.date]) grouped[data.date] = [];
 
-            const d = new Date(data.date);
-            if (d >= start && d <= end) {
-                counts[data.date] = (counts[data.date] || 0) + 1;
-            }
+            grouped[data.date].push({
+                id: docSnap.id,
+                startTime: data.startTime,
+                title: data.title,
+            });
         });
 
-        setMonthEvents(counts);
-    }, [user, year, month]);
+        setMonthEvents(grouped);
+    }, [user]);
 
+    /* =========================
+       오늘 일정 (고정)
+    ========================= */
+    const loadTodayEvents = useCallback(async () => {
+        if (!user) return;
 
-    /* 날짜 / 유저 변경 시 다시 로드 */
+        const q = query(
+            collection(db, "events"),
+            where("userId", "==", user.uid),
+            where("date", "==", todayKey)
+        );
+
+        const snapshot = await getDocs(q);
+        const list = [];
+
+        snapshot.forEach((docSnap) => {
+            const data = docSnap.data();
+            list.push({
+                id: docSnap.id,
+                title: data.title,
+                description: data.description || "",
+                startTime: data.startTime,
+            });
+        });
+
+        setTodayEvents(list);
+    }, [user, todayKey]);
+
     useEffect(() => {
         loadEvents();
     }, [loadEvents]);
+
     useEffect(() => {
         loadMonthEvents();
     }, [loadMonthEvents]);
+
+    useEffect(() => {
+        loadTodayEvents();
+    }, [loadTodayEvents]);
 
     /* =========================
        월 이동
@@ -134,18 +170,21 @@ export default function Main() {
     /* =========================
        일정 추가
     ========================= */
-    const addEvent = async ({ title, startTime }) => {
+    const addEvent = async ({ title, description, startTime }) => {
         if (!user) return;
 
         await addDoc(collection(db, "events"), {
             userId: user.uid,
             date: selectedKey,
             title,
+            description, // 🔥 핵심
             startTime,
             createdAt: new Date(),
         });
 
         await loadEvents();
+        await loadMonthEvents();
+        await loadTodayEvents();
         setIsModalOpen(false);
     };
 
@@ -155,40 +194,18 @@ export default function Main() {
     const deleteEvent = async (eventId) => {
         await deleteDoc(doc(db, "events", eventId));
         await loadEvents();
+        await loadMonthEvents();
+        await loadTodayEvents();
     };
 
     /* =========================
        로그인 UI
     ========================= */
     if (!user) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-100">
-                <div className="bg-white p-8 rounded-2xl shadow w-80">
-                    <h2 className="text-xl font-semibold mb-6 text-center">
-                        로그인
-                    </h2>
-
-                    <button
-                        onClick={loginWithGoogle}
-                        className="w-full mb-3 py-2 rounded-lg border"
-                    >
-                        Google로 로그인
-                    </button>
-
-                    <button
-                        onClick={loginWithGithub}
-                        className="w-full py-2 rounded-lg border"
-                    >
-                        GitHub로 로그인
-                    </button>
-                </div>
-            </div>
-        );
+        return <Auth />;
     }
 
-    /* =========================
-       메인 화면
-    ========================= */
+
     return (
         <>
             <div className="min-h-screen bg-gray-100 p-6">
@@ -199,7 +216,7 @@ export default function Main() {
                     onNext={nextMonth}
                 />
 
-                <TodayCard />
+                <TodayCard events={todayEvents} />
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="md:col-span-2">
@@ -210,7 +227,6 @@ export default function Main() {
                             onSelect={setSelectedDate}
                             monthEvents={monthEvents}
                         />
-
                     </div>
 
                     <DayPanel

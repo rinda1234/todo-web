@@ -3,13 +3,22 @@ import { createPortal } from "react-dom";
 
 export default function EventModal({ date, onClose, onSave }) {
     const [title, setTitle] = useState("");
+    const [description, setDescription] = useState("");
     const [time, setTime] = useState("09:00");
 
     const handleSave = () => {
         if (!title.trim()) return;
-        onSave({ title, startTime: time });
-        onClose();
+
+        onSave({
+            title,
+            description,
+            startTime: time,
+        });
+
         setTitle("");
+        setDescription("");
+        setTime("09:00");
+        onClose();
     };
 
     return createPortal(
@@ -27,20 +36,24 @@ export default function EventModal({ date, onClose, onSave }) {
             <div
                 style={{
                     background: "white",
-                    width: 320,
+                    width: 360,
                     borderRadius: 16,
                     padding: 24,
                     boxShadow: "0 10px 30px rgba(0,0,0,0.25)",
                 }}
             >
                 <h3 style={{ fontWeight: 600, marginBottom: 16 }}>
-                    {date.getMonth() + 1}월 {date.getDate()}일 일정 추가
+                    {date.getMonth() + 1}/{date.getDate()} 일정 추가
                 </h3>
 
+                {/* 제목 */}
+                <label style={{ fontSize: 13, fontWeight: 500 }}>
+                    제목
+                </label>
                 <input
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    placeholder="할 일을 입력하세요"
+                    placeholder=""
                     style={{
                         width: "100%",
                         padding: 8,
@@ -50,6 +63,29 @@ export default function EventModal({ date, onClose, onSave }) {
                     }}
                 />
 
+                {/* 내용 */}
+                <label style={{ fontSize: 13, fontWeight: 500 }}>
+                    내용
+                </label>
+                <textarea
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder=""
+                    rows={3}
+                    style={{
+                        width: "100%",
+                        padding: 8,
+                        marginBottom: 12,
+                        border: "1px solid #ccc",
+                        borderRadius: 8,
+                        resize: "none",
+                    }}
+                />
+
+                {/* 시간 */}
+                <label style={{ fontSize: 13, fontWeight: 500 }}>
+                    시간
+                </label>
                 <input
                     type="time"
                     value={time}
@@ -66,7 +102,13 @@ export default function EventModal({ date, onClose, onSave }) {
                 <div style={{ display: "flex", gap: 8 }}>
                     <button
                         onClick={onClose}
-                        style={{ flex: 1, padding: 8 }}
+                        style={{
+                            flex: 1,
+                            padding: 8,
+                            borderRadius: 8,
+                            border: "1px solid #ccc",
+                            background: "white",
+                        }}
                     >
                         취소
                     </button>
@@ -78,6 +120,7 @@ export default function EventModal({ date, onClose, onSave }) {
                             background: "#3b82f6",
                             color: "white",
                             borderRadius: 8,
+                            border: "none",
                         }}
                     >
                         저장
